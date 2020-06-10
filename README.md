@@ -15,11 +15,25 @@ pipenv run py shotty.py
 
 # Click group is added as below.
 pipenv run py shotty.py <command> <--name='Name>
-*command* is list, start , stop
-*name* is optional
+*command* is instances , volumes or snapshots
+*subcommand* - dependes upon command
+*name*,*supportcontacts* is optional
 #Sample commands
 pipenv run py shotty/shotty.py list --supportcontacts=hello@email.com
 #Stating ec2 with Name filter
 $ pipenv run py shotty/shotty.py start --name='Streamset Data Collector'
 #Stopping ec2 instance with Name
 $ pipenv run py shotty/shotty.py stop --name='Streamset Data Collector'
+#-------------------------------------------
+#After adding instance and volumn group
+$ pipenv run py shotty/shotty.py instances stop --name='Streamset Data Collector'
+
+#Volume
+$ pipenv run py shotty/shotty.py volumes list --supportcontacts=hello@time.com
+
+#snapshots
+$ pipenv run py shotty/shotty.py snapshots list --supportcontacts=hello@time.com
+
+#help
+$ pipenv run py shotty/shotty.py --help
+$ pipenv run py shotty/shotty.py instances --help

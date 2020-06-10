@@ -17,9 +17,98 @@ def filter_instances(name):
     return instances
 
 
+
 @click.group()
+def cli():
+    "To manage snapshots"
+
+
+@cli.group('snapshots')
+def snapshots():
+    "Commands for volumes"
+@snapshots.command('list')
+@click.option('--supportcontacts', default=None, help="volumns for  for SupportContats(tag SupportContatcs:<value>)")
+
+def list_snapshots(supportcontacts):
+    "List EC2 volumes"
+    instances = []
+
+    if supportcontacts:
+        filter = [{'Name':'tag:SupportContacts', 'Values':[supportcontacts]}]
+        instances = ec2.instances.filter(Filters=filter)
+    else:
+        instances = ec2.instances.all()
+
+    for i in instances:
+        for v in i.volumes.all():
+            for s in v.snapshots.all():
+                print(", ".join((
+                    s.id,
+                    v.id,
+                    i.id,
+                    s.state,
+                    s.progress,
+                    s.start_time.strftime("%C")
+                )))
+
+    return
+
+
+
+
+@cli.group('volumes')
+def volumes():
+    "Commands for volumes"
+@volumes.command('list')
+@click.option('--supportcontacts', default=None, help="volumns for  for SupportContats(tag SupportContatcs:<value>)")
+
+def list_volumes(supportcontacts):
+    "List EC2 volumes"
+    instances = []
+
+    if supportcontacts:
+        filter = [{'Name':'tag:SupportContacts', 'Values':[supportcontacts]}]
+        instances = ec2.instances.filter(Filters=filter)
+    else:
+        instances = ec2.instances.all()
+
+    for i in instances:
+        for v in i.volumes.all():
+            print(", ".join((
+                v.id,
+                i.id,
+                v.state,
+                str(v.size) + "GiB",
+                v.encrypted and "Encrypted" or "Not Encrypted"
+            )))
+
+    return
+
+
+
+
+@cli.group('instances')
 def instances():
     " Command for instances "
+
+@instances.command('snapshot')
+@click.option('--name', default=None, help="Only instances with SupportContats(tag SupportContatcs:<value>)")
+def create_snapshot(name):
+    "Create snapshot for EC2 instances"
+    instances = filter_instances(name)
+    for i in instances:
+        print("Stoppng  of {0}".format(i.id))
+        i.stop()
+        i.wait_until_stopped()
+        for v in i.volumes.all():
+            print("Creating snapshot of {0}".format(v.id))
+            v.create_snapshot()
+        print("Starting  of {0}".format(i.id))
+        i.start()
+        i.wait_until_running()
+
+    print("Snapshots created")
+    return
 
 @instances.command('list')
 @click.option('--supportcontacts', default=None, help="Only instances with SupportContats(tag SupportContatcs:<value>)")
@@ -72,8 +161,8 @@ def start_instances(name):
 
 if __name__ == '__main__':
     #print(sys.argv)
-
     #list_instances() # After adding @group this is removed .
-    instances()
+    #instances()
+    cli()
 
 
