@@ -1,4 +1,5 @@
 import boto3
+import botocore
 import click
 import sys
 
@@ -28,8 +29,9 @@ def snapshots():
     "Commands for volumes"
 @snapshots.command('list')
 @click.option('--supportcontacts', default=None, help="volumns for  for SupportContats(tag SupportContatcs:<value>)")
-
-def list_snapshots(supportcontacts):
+@click.option('--all', 'list_all', default=False,is_flag=True,help="List all snapshots for all volumns not just the most recent")
+#if --all flat is set list_all will be true, default is false, so it will show only latest snapshot
+def list_snapshots(supportcontacts,list_all):
     "List EC2 volumes"
     instances = []
 
@@ -50,7 +52,7 @@ def list_snapshots(supportcontacts):
                     s.progress,
                     s.start_time.strftime("%C")
                 )))
-
+                if s.state == 'completed' and not list_all: break  # to show only recent snapshots.
     return
 
 
@@ -141,7 +143,11 @@ def stop_instances(name):
 
     for i in instances:
         print("Stopping {0} ....".format(i.id))
-        i.stop()
+        try:
+            i.stop()
+        except botocore.exceptions.ClientError as e:
+            print("Could not stop {0}. ".format(i.id) + str(e))
+            continue
     return
 
 @instances.command('start')
@@ -155,7 +161,12 @@ def start_instances(name):
 
     for i in instances:
         print("Starting {0} ....".format(i.id))
-        i.start()
+        try:
+            i.start()
+        except botocore.exceptions.ClientError as e:
+            print("Could not start {0}. ".format(i.id) + str(e))
+            continue
+
     return
 
 

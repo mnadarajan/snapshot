@@ -33,7 +33,7 @@ $ pipenv run py shotty/shotty.py volumes list --supportcontacts=hello@time.com
 
 #snapshots
 $ pipenv run py shotty/shotty.py snapshots list --supportcontacts=hello@time.com
-
+$ pipenv run py shotty/shotty.py snapshots list --all --supportcontacts=hello@time.com
 #help
 $ pipenv run py shotty/shotty.py --help
 $ pipenv run py shotty/shotty.py instances --help
