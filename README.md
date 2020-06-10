@@ -7,7 +7,7 @@ boto3 is installed in pipenv environment.
 ## Configuration.
 aws configure has to be completed before running scirpt.
 login using aws-azure-login
-
+pipenv install click
 #Running
 
 pipenv run py shotty.py
