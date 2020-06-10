@@ -18,6 +18,9 @@ def filter_instances(name):
     return instances
 
 
+def has_pending_snapshots(volumes):
+    snapshots = list(volumes.snapshots.all())
+    return snapshots and snapshots[0].state == 'pending'
 
 @click.group()
 def cli():
@@ -103,6 +106,9 @@ def create_snapshot(name):
         i.stop()
         i.wait_until_stopped()
         for v in i.volumes.all():
+            if has_pending_snapshots(v):
+                print("Skipping snapshot of {0} snapshot already in progrss".format(v.id))
+                continue
             print("Creating snapshot of {0}".format(v.id))
             v.create_snapshot()
         print("Starting  of {0}".format(i.id))
